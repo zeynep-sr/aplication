@@ -6,7 +6,7 @@ Uygulamanın temel amacı, kullanıcının mevcut CV'sini yalnızca "daha güzel
 
 ---
 
-## 🎯 Ürünün Temel Amacı
+## 🚀 Geliştirme yeni ekleme işlemi
 
 Uygulama iki ana kullanım senaryosuna dayanır.
 
