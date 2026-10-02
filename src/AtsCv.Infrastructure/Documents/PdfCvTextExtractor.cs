@@ -37,6 +37,10 @@ public sealed class PdfCvTextExtractor : ICvTextExtractor
 
             return Task.FromResult(result);
         }
+        catch (OperationCanceledException) when (cancellationToken.IsCancellationRequested)
+        {
+            throw;
+        }
         catch (InvalidOperationException)
         {
             throw;

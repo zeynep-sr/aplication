@@ -27,6 +27,8 @@ public sealed class CandidateProfile
     // This is treated as candidate-provided source data for later AI workflows.
     public string? AdditionalInformation { get; private set; }
 
+    public bool IsDraft => string.IsNullOrWhiteSpace(FullName);
+
     public static CandidateProfile Create(
         string fullName,
         string? email = null,
@@ -40,6 +42,26 @@ public sealed class CandidateProfile
         {
             AdditionalInformation = Normalize(additionalInformation)
         };
+    }
+
+    /// <summary>
+    /// Creates an intake draft before the candidate's identity has been
+    /// supplied or reliably extracted from verified source data.
+    /// </summary>
+    public static CandidateProfile CreateDraft(string? additionalInformation = null) =>
+        new(Guid.NewGuid(), string.Empty, null, null)
+        {
+            AdditionalInformation = Normalize(additionalInformation)
+        };
+
+    public void UpdateIdentity(string fullName, string? email = null, string? phone = null)
+    {
+        if (string.IsNullOrWhiteSpace(fullName))
+            throw new ArgumentException("Full name is required.", nameof(fullName));
+
+        FullName = fullName.Trim();
+        Email = email;
+        Phone = phone;
     }
 
     public void UpdateContact(string? email, string? phone)
