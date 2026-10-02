@@ -3,5 +3,6 @@
     <ProjectReference Include="..\AtsCv.Application\AtsCv.Application.csproj" />
     <ProjectReference Include="..\AtsCv.Infrastructure\AtsCv.Infrastructure.csproj" />
     <FrameworkReference Include="Microsoft.AspNetCore.App" />
+    <PackageReference Include="Swashbuckle.AspNetCore" Version="6.6.2" />
   </ItemGroup>
 </Project>

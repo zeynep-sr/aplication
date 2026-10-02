@@ -4,4 +4,7 @@ public sealed record CvIntakeResult(
     Guid ResumeId,
     string FileName,
     string ExtractedText,
-    string? AdditionalInformation);
+    string? AdditionalInformation)
+{
+    public Guid CandidateProfileId { get; init; }
+}

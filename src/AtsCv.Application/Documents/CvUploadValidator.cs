@@ -41,6 +41,8 @@ public sealed class CvUploadValidator
         ArgumentNullException.ThrowIfNull(request);
 
         var errors = new List<string>();
+        var hasUnsupportedFileType = false;
+        var hasFileTooLarge = false;
 
         if (string.IsNullOrWhiteSpace(request.FileName))
         {
@@ -59,9 +61,13 @@ public sealed class CvUploadValidator
             if (fileName is "." or "..")
                 errors.Add("The file name is not valid.");
 
+            var extensionStart = fileName.LastIndexOf('.');
+            var extension = extensionStart >= 0 ? fileName[extensionStart..] : string.Empty;
+
             if (!AllowedExtensions.TryGetValue(request.DocumentType, out var extensions) ||
-                !extensions.Contains(Path.GetExtension(fileName), StringComparer.OrdinalIgnoreCase))
+                !extensions.Contains(extension, StringComparer.OrdinalIgnoreCase))
             {
+                hasUnsupportedFileType = true;
                 errors.Add("The file extension does not match the selected document type.");
             }
         }
@@ -69,6 +75,7 @@ public sealed class CvUploadValidator
         if (!AllowedContentTypes.TryGetValue(request.DocumentType, out var contentTypes) ||
             !contentTypes.Contains(request.ContentType, StringComparer.OrdinalIgnoreCase))
         {
+            hasUnsupportedFileType = true;
             errors.Add("The content type does not match the selected document type.");
         }
 
@@ -87,14 +94,23 @@ public sealed class CvUploadValidator
             if (request.Content.Length <= 0)
                 errors.Add("The CV file must not be empty.");
             else if (request.Content.Length > _maxFileSizeBytes)
+            {
+                hasFileTooLarge = true;
                 errors.Add($"The CV file must not exceed {_maxFileSizeBytes / (1024 * 1024)} MB.");
+            }
         }
 
-        return new CvUploadValidationResult(errors);
+        return new CvUploadValidationResult(errors)
+        {
+            HasUnsupportedFileType = hasUnsupportedFileType,
+            HasFileTooLarge = hasFileTooLarge
+        };
     }
 }
 
 public sealed record CvUploadValidationResult(IReadOnlyList<string> Errors)
 {
     public bool IsValid => Errors.Count == 0;
+    public bool HasUnsupportedFileType { get; init; }
+    public bool HasFileTooLarge { get; init; }
 }

@@ -8,7 +8,7 @@ Accepted formats:
 - PDF
 - DOCX
 
-The original candidate document is stored separately from extracted text and generated documents.
+The original candidate document should be stored separately from extracted text and generated documents when persistent storage is introduced.
 
 ## Additional information
 
@@ -39,11 +39,22 @@ The textarea is optional. A candidate with only a CV can continue.
 
 The API receives both the original file and additional information. The application layer keeps these concepts separate so future structured fields can be added without replacing the free-form input.
 
+### Initial intake API
+
+`POST /api/cv/upload` accepts `multipart/form-data` with:
+
+- `File`: required PDF or DOCX file, up to 10 MiB.
+- `AdditionalInformation`: optional text, up to 2,000 characters.
+
+The file extension, declared content type, and file signature are checked before extraction. Successful requests return HTTP 200 with `candidateProfileId`, `resumeId`, `fileName`, `extractedText`, and the normalized `additionalInformation`. The candidate profile is created as a draft; the service does not infer a candidate name from a filename or unstructured text.
+
+Errors use the ProblemDetails contract in `api-error-contract.md`. The stable error codes include `validation_error`, `unsupported_file_type`, `file_too_large`, `extraction_failed`, `rate_limited`, and `unexpected_error`.
+
+This first endpoint creates the intake draft and extracts text. Persistent repositories and long-term retention of uploaded files are separate follow-up work.
+
 Next vertical slice:
-1. Validate file.
-2. Store it securely.
-3. Extract PDF/DOCX text.
-4. Create Resume.
-5. Create or update CandidateProfile with AdditionalInformation.
-6. Run ATS analysis.
+1. Add repository-backed persistence for the intake draft and extracted text.
+2. Store the original upload securely with a cleanup/retention policy.
+3. Create or update CandidateProfile with structured, verified details.
+4. Run ATS analysis and return findings.
 7. Explain detected issues.
